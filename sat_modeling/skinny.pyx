@@ -10,7 +10,7 @@ from libc.string cimport memcpy, memset
 from skinny cimport *
 
 
-cdef int _skinny_enc_ecb(uint8_t *ct, const uint8_t *pt, const uint8_t tweakey[48], unsigned int ct_len, unsigned int numrounds) nogil:
+cdef int _skinny_enc_ecb(uint8_t *ct, const uint8_t *pt, const uint8_t tweakey[48], unsigned int ct_len, unsigned int numrounds) noexcept nogil:
     if numrounds > 56 or ct_len % 16 != 0:
         return 0
 
@@ -34,7 +34,7 @@ def skinny_enc_ecb(const uint8_t[::1] pt not None, const uint8_t[::1] tweakey no
     return bytes(ct)
 
 
-cdef int _romulush_reduce(uint8_t result[32], const uint8_t lr[32], const uint8_t msg[32], int numrounds) nogil:
+cdef int _romulush_reduce(uint8_t result[32], const uint8_t lr[32], const uint8_t msg[32], int numrounds) noexcept nogil:
     cdef uint8_t pt[32];
     memcpy(&pt[0], &lr[0], 16)
     memcpy(&pt[16], &lr[0], 16)
@@ -62,7 +62,7 @@ def romulush_reduce(const uint8_t[::1] lr, const uint8_t[::1] msg, int numrounds
     return bytes(result)
 
 
-cdef void _romulush(uint8_t hash[32], const uint8_t *msg, size_t msg_len, int numrounds) nogil:
+cdef void _romulush(uint8_t hash[32], const uint8_t *msg, size_t msg_len, int numrounds) noexcept nogil:
     cdef uint8_t buf[32]
     cdef ssize_t i = 0
 

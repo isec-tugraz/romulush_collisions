@@ -6,7 +6,7 @@ from libc.math cimport log2
 from libc.string cimport memset, memcpy
 from libc.stdio cimport printf
 from cython.view cimport array as cvarray
-cimport numpy as np
+# cimport numpy as np
 
 from sage.matrix.matrix_mod2_dense cimport Matrix_mod2_dense
 cimport sage.libs.m4ri as m4ri
@@ -43,7 +43,7 @@ def randomize():
     srand(int.from_bytes(urandom(4), 'big') & 0x7fffffff)
 randomize()
 
-cdef void fill_ddt4(const uint8_t[:] sbox, uint16_t[:, :, :, :] ddt4) nogil:
+cdef void fill_ddt4(const uint8_t[:] sbox, uint16_t[:, :, :, :] ddt4) noexcept nogil:
     if not (sbox.shape[0] == ddt4.shape[0] == ddt4.shape[1] == ddt4.shape[2] == ddt4.shape[3]):
         return
 
@@ -146,7 +146,7 @@ def as_numpy(Matrix_mod2_dense m) -> np.ndarray:
     return res
 
 
-cdef int fill_conditional_ddt(const uint8_t[:] sbox, uint16_t[:, :, :] conditional_ddt) nogil:
+cdef int fill_conditional_ddt(const uint8_t[:] sbox, uint16_t[:, :, :] conditional_ddt) noexcept nogil:
     if not (sbox.shape[0] == conditional_ddt.shape[0] == conditional_ddt.shape[1] == conditional_ddt.shape[2]):
         return False
 
@@ -232,12 +232,12 @@ def get_column_probability(
     return p013
 
 
-cdef void _sbox(uint8_t[:, ::1] state) nogil:
+cdef void _sbox(uint8_t[:, ::1] state) noexcept nogil:
     cdef uint8_t *state_ptr = &state[0,0]
     for i in range(16):
         state_ptr[i] = sbox[state_ptr[i]]
 
-cdef void _shift_rows(uint8_t[:, ::1] state) nogil:
+cdef void _shift_rows(uint8_t[:, ::1] state) noexcept nogil:
     cdef uint8_t tmp_row[4]
     cdef int row, col
 
@@ -248,7 +248,7 @@ cdef void _shift_rows(uint8_t[:, ::1] state) nogil:
             state[row, (col + row) % 4] = tmp_row[col]
 
 
-cdef void _randomize_chaining_value(uint8_t *prefix, uint8_t *lr, int numrounds) nogil:
+cdef void _randomize_chaining_value(uint8_t *prefix, uint8_t *lr, int numrounds) noexcept nogil:
     for i in range(32):
         prefix[i] = ord('A') + rand() % 26
     memset(lr, 0, 32)
@@ -261,7 +261,7 @@ cdef void _build_lut(
         const uint8_t[:,:] sbox_out,
         const int64_t[:,:] tbox_in,
         const int64_t[:,:] tbox_out,
-        const int64_t[:,:] unknown) nogil:
+        const int64_t[:,:] unknown) noexcept nogil:
     ...
     cdef uint8_t sbi, sbo, tbi, tbo, unkn, val
     cdef int val_iter
@@ -306,8 +306,7 @@ cdef int32_t _generate_prefix(
         const uint8_t[:,:,:] sbox_out,
         const int64_t[:,:,:] tbox_in,
         const int64_t[:,:,:] tbox_out,
-        const int64_t[:,:,:] unknown) nogil:
-    ...
+        const int64_t[:,:,:] unknown) noexcept nogil:
 
     cdef int numrounds = sbox_in.shape[0]
     #printf("numrounds: %d\n", numrounds)

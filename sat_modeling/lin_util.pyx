@@ -24,20 +24,20 @@ cdef extern from *:
     #define ffs(x) __builtin_ffsll(x)
     #define popcount(x) __builtin_popcountll(x)
     """
-    int ffs(int x) nogil
-    int popcount(unsigned int x) nogil
-    int likely(int) nogil
-    int unlikely(int) nogil
+    int ffs(int x) noexcept nogil
+    int popcount(unsigned int x) noexcept nogil
+    int likely(int) noexcept nogil
+    int unlikely(int) noexcept nogil
 
 ctypedef struct Difference:
     uint64_t mask
     float log_prob
 
 
-cpdef int getbit(const uint16_t[:, ::1] mat, size_t row, size_t col) nogil:
+cpdef int getbit(const uint16_t[:, ::1] mat, size_t row, size_t col) noexcept nogil:
     return (mat[row][col // 16] >> (col % 16)) & 1
 
-cpdef int is_identity_submatrix(const uint16_t[:, ::1] mat, size_t limit) nogil:
+cpdef int is_identity_submatrix(const uint16_t[:, ::1] mat, size_t limit) noexcept nogil:
     cdef size_t row, col
     for row in range(limit):
         for col in range(limit):
@@ -45,7 +45,7 @@ cpdef int is_identity_submatrix(const uint16_t[:, ::1] mat, size_t limit) nogil:
                 return 0
     return 1
 
-cpdef size_t largest_identity_submatrix(const uint16_t[:,::1] mat) nogil:
+cpdef size_t largest_identity_submatrix(const uint16_t[:,::1] mat) noexcept nogil:
     cdef size_t res = 0
 
     cdef size_t rows = mat.shape[0]
@@ -59,7 +59,7 @@ cpdef size_t largest_identity_submatrix(const uint16_t[:,::1] mat) nogil:
     return l
 
 
-cdef vector[uint16_t] non_zero(const int16_t *ddt) nogil:
+cdef vector[uint16_t] non_zero(const int16_t *ddt) noexcept nogil:
     cdef vector[uint16_t] result
     cdef size_t i
 
@@ -74,18 +74,18 @@ cdef vector[uint16_t] non_zero(const int16_t *ddt) nogil:
     result.resize(res_size)
     return result
 
-cdef void xor_assign(uint16_t *dst, const uint16_t *src, size_t len) nogil:
+cdef void xor_assign(uint16_t *dst, const uint16_t *src, size_t len) noexcept nogil:
     for i in range(len):
         dst[i] ^= src[i]
 
-cdef void mul_acc(uint16_t *dst, const uint16_t[:, ::1] mat, uint16_t val) nogil:
+cdef void mul_acc(uint16_t *dst, const uint16_t[:, ::1] mat, uint16_t val) noexcept nogil:
     cdef size_t bit_idx
     for bit_idx in range(16):
         if val & (1 << bit_idx):
             xor_assign(dst, &mat[bit_idx, 0], mat.shape[1])
 
 
-cdef uint64_t _count_good_masks(const uint16_t[:, ::1] mat, const int16_t *ddt) nogil:
+cdef uint64_t _count_good_masks(const uint16_t[:, ::1] mat, const int16_t *ddt) noexcept nogil:
     cdef uint64_t result = 0
     cdef vector[uint16_t] nz_ddt = non_zero(ddt)
     cdef size_t free_sbox, bit_idx
@@ -137,7 +137,7 @@ cdef uint64_t _count_good_masks(const uint16_t[:, ::1] mat, const int16_t *ddt) 
     return result
 
 
-cdef vector[Difference] _find_good_masks(const uint16_t[:, ::1] mat, const int16_t *ddt) nogil:
+cdef vector[Difference] _find_good_masks(const uint16_t[:, ::1] mat, const int16_t *ddt) noexcept nogil:
     cdef vector[Difference] result
     cdef vector[uint16_t] nz_ddt = non_zero(ddt)
     cdef size_t free_sbox, bit_idx
