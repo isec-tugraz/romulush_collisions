@@ -499,7 +499,7 @@ def main(byte_char_file, out_file):
         partial_chars = lin_cond.iterate_tweakeys()
 
     s = Solver()
-    s.set('seed', int.from_bytes(os.urandom(4), 'little'))
+    s.set('random_seed', int.from_bytes(os.urandom(4), 'little'))
     skinny = DualCharSolver(s, milp_char, enable_weight=args.weight_limit is not None)
     numrounds = skinny.numrounds
 
